@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/canvas-confetti/1.9.3/confetti.min.js"></script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <div class="relative flex-grow mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search todos..." class="pl-8 w-full p-2 border rounded">
+            </div>
+            <button id="addNewBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New
+            </button>
+        </div>
+        <ul id="todoList" class="space-y-2"></ul>
+    </div>
+
+    <div id="addTodoModal" class="modal">
+        <div class="modal-content rounded-lg">
+            <h2 class="text-2xl font-bold mb-4">Add New Todo</h2>
+            <div class="mb-4">
+                <label for="newTodoInput" class="block text-sm font-medium text-gray-700">Task</label>
+                <input type="text" id="newTodoInput" class="mt-1 block w-full p-2 border rounded" placeholder="Enter task">
+            </div>
+            <div class="mb-4">
+                <label for="newDueDateInput" class="block text-sm font-medium text-gray-700">Due Date</label>
+                <input type="date" id="newDueDateInput" class="mt-1 block w-full p-2 border rounded">
+            </div>
+            <button id="addTodoBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Todo</button>
+            <button id="closeModalBtn" class="ml-2 bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+        function renderTodos() {
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            todos.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                .filter(todo => todo.text.toLowerCase().includes(searchTerm))
+                .forEach(todo => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-center space-x-2';
+                    li.innerHTML = `
+                        <button class="text-gray-500 hover:text-gray-700" onclick="deleteTodo('${todo.id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+                            </svg>
+                        </button>
+                        <span class="flex-grow ${getTextColor(todo.dueDate)}">${todo.text}</span>
+                        <span class="text-sm text-gray-500">${todo.dueDate}</span>
+                    `;
+                    todoList.appendChild(li);
+                });
+        }
+
+        function getTextColor(dueDate) {
+            const today = new Date().toISOString().split('T')[0];
+            if (dueDate > today) return 'text-brown-500';
+            if (dueDate === today) return 'text-orange-500';
+            return 'text-gray-700';
+        }
+
+        function addTodo() {
+            const newTodoInput = document.getElementById('newTodoInput');
+            const newDueDateInput = document.getElementById('newDueDateInput');
+            if (newTodoInput.value.trim() !== '' && newDueDateInput.value !== '') {
+                const newTodo = {
+                    id: Date.now().toString(),
+                    text: newTodoInput.value.trim(),
+                    dueDate: newDueDateInput.value
+                };
+                todos.push(newTodo);
+                localStorage.setItem('todos', JSON.stringify(todos));
+                newTodoInput.value = '';
+                newDueDateInput.value = '';
+                renderTodos();
+                closeModal();
+            }
+        }
+
+        function deleteTodo(id) {
+            todos = todos.filter(todo => todo.id !== id);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            renderTodos();
+            if (todos.length === 0) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function openModal() {
+            document.getElementById('addTodoModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('addTodoModal').style.display = 'none';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderTodos);
+        document.getElementById('addNewBtn').addEventListener('click', openModal);
+        document.getElementById('addTodoBtn').addEventListener('click', addTodo);
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+
+        renderTodos();
+    </script>
+</body>
+</html>
