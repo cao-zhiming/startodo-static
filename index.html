@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo List</title>
+    <title>StarTodo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/canvas-confetti/1.9.3/confetti.min.js"></script>
     <style>
@@ -118,13 +118,13 @@
             todos = todos.filter(todo => todo.id !== id);
             localStorage.setItem('todos', JSON.stringify(todos));
             renderTodos();
-            if (todos.length === 0) {
+        
                 confetti({
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 }
                 });
-            }
+            
         }
 
         function openModal() {
