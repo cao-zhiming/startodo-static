@@ -29,7 +29,7 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full p-6">
+    <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full p-6" id="cc">
         <div class="flex justify-between items-center mb-4">
             <div class="relative flex-grow mr-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,7 +65,7 @@
 
     <script>
         let todos = JSON.parse(localStorage.getItem('todos')) || [];
-
+let cc = document.getElementById("cc");
         function renderTodos() {
             const todoList = document.getElementById('todoList');
             todoList.innerHTML = '';
@@ -75,7 +75,7 @@
                 .filter(todo => todo.text.toLowerCase().includes(searchTerm))
                 .forEach(todo => {
                     const li = document.createElement('li');
-                    li.className = 'flex items-center space-x-2';
+                    li.className = 'flex items-center space-x-2 hover:shadow-lg transition-shadow duration-300';
                     li.innerHTML = `
                         <button class="text-gray-500 hover:text-gray-700" onclick="deleteTodo('${todo.id}')">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,8 +91,8 @@
 
         function getTextColor(dueDate) {
             const today = new Date().toISOString().split('T')[0];
-            if (dueDate > today) return 'text-brown-500';
-            if (dueDate === today) return 'text-orange-500';
+            if (dueDate > today) return 'decoration-wavy decoration-pink-500 text-gray-700';
+            if (dueDate === today) return 'decoration-wavy decoration-sky-500 text-gray-700';
             return 'text-gray-700';
         }
 
@@ -119,7 +119,7 @@
             localStorage.setItem('todos', JSON.stringify(todos));
             renderTodos();
         
-                confetti({
+                confetti(cc,{
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 }
