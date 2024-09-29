@@ -64,6 +64,13 @@
     </div>
 
     <script>
+        function getTextColor(dueDate) {
+            const today = new Date().toISOString().split('T')[0];
+            if (dueDate > today) return 'decoration-wavy decoration-pink-500 text-gray-700';
+            if (dueDate === today) return 'decoration-wavy decoration-sky-500 text-gray-700';
+            return 'text-gray-700';
+        }
+        
         let todos = JSON.parse(localStorage.getItem('todos')) || [];
 let cc = document.getElementById("cc");
         function renderTodos() {
@@ -75,7 +82,7 @@ let cc = document.getElementById("cc");
                 .filter(todo => todo.text.toLowerCase().includes(searchTerm))
                 .forEach(todo => {
                     const li = document.createElement('li');
-                    li.className = 'flex items-center space-x-2 hover:shadow-lg transition-shadow duration-300';
+                    li.className = 'flex items-center rounded-md space-x-2 hover:shadow-lg transition-shadow duration-300';
                     li.innerHTML = `
                         <button class="text-gray-500 hover:text-gray-700" onclick="deleteTodo('${todo.id}')">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,12 +96,7 @@ let cc = document.getElementById("cc");
                 });
         }
 
-        function getTextColor(dueDate) {
-            const today = new Date().toISOString().split('T')[0];
-            if (dueDate > today) return 'decoration-wavy decoration-pink-500 text-gray-700';
-            if (dueDate === today) return 'decoration-wavy decoration-sky-500 text-gray-700';
-            return 'text-gray-700';
-        }
+        
 
         function addTodo() {
             const newTodoInput = document.getElementById('newTodoInput');
